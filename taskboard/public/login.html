@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskBoard - Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5zm3 2v10h2V7H7zm4 0v6h2V7h-2zm4 0v8h2V7h-2z"/>
+        </svg>
+      </div>
+      <h1>Welcome back</h1>
+      <p>Log in to manage your boards and collaborate</p>
+    </div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="login-email">Email Address</label>
+        <input 
+          type="email" 
+          id="login-email" 
+          class="form-control" 
+          placeholder="name@example.com" 
+          required 
+          autocomplete="email"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <input 
+          type="password" 
+          id="login-password" 
+          class="form-control" 
+          placeholder="••••••••" 
+          required 
+          autocomplete="current-password"
+        >
+      </div>
+
+      <button type="submit" id="btn-login-submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">
+        Sign In
+      </button>
+    </form>
+
+    <div class="auth-demo-box">
+      <div class="auth-demo-title">Quick Demo Login</div>
+      <div class="demo-accounts">
+        <button type="button" class="demo-acc-btn" data-email="demo@taskboard.com" data-pass="password123">
+          👑 Demo Admin: <strong>demo@taskboard.com</strong>
+        </button>
+        <button type="button" class="demo-acc-btn" data-email="alice@taskboard.com" data-pass="password123">
+          👩‍💻 Alice Johnson: <strong>alice@taskboard.com</strong>
+        </button>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 24px; font-size: 0.875rem; color: var(--text-muted);">
+      Don't have an account? <a href="/register.html">Create one</a>
+    </div>
+  </div>
+
+  <script type="module" src="/js/auth.js"></script>
+</body>
+</html>

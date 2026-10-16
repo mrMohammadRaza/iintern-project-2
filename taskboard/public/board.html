@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskBoard - Kanban</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="board-layout">
+
+  <!-- Top App Navigation -->
+  <header class="app-nav">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="/dashboard.html" class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5zm3 2v10h2V7H7zm4 0v6h2V7h-2zm4 0v8h2V7h-2z"/>
+          </svg>
+        </div>
+        <span class="brand-name">TaskBoard</span>
+      </a>
+      <a href="/dashboard.html" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; gap: 6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Boards
+      </a>
+    </div>
+
+    <div class="nav-actions">
+      <div class="user-badge" id="nav-user-badge">
+        <div class="user-avatar" id="nav-user-avatar">--</div>
+        <span class="user-name" id="nav-user-name">Loading...</span>
+      </div>
+      <button id="btn-logout" class="btn btn-ghost btn-sm" title="Sign Out">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Board Sub-header (Title, Members, Search & Filter Bar) -->
+  <div class="board-header-bar">
+    <div class="board-info">
+      <h1 id="board-title" class="board-title-editable" title="Click to rename board (Owner only)">
+        Loading Board...
+      </h1>
+      
+      <!-- Members Avatar Stack -->
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div id="board-members-stack" class="members-stack">
+          <!-- Populated dynamically -->
+        </div>
+        <button id="btn-manage-members" class="btn btn-secondary btn-sm" title="Manage Members">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <line x1="20" y1="8" x2="20" y2="14"></line>
+            <line x1="23" y1="11" x2="17" y2="11"></line>
+          </svg>
+          Team
+        </button>
+      </div>
+    </div>
+
+    <!-- Search & Filter Controls -->
+    <div class="filter-bar">
+      <!-- Search Keyword Input -->
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          id="filter-search" 
+          class="search-input" 
+          placeholder="Filter tasks by name..."
+        >
+      </div>
+
+      <!-- Priority Filter -->
+      <select id="filter-priority" class="filter-select">
+        <option value="">All Priorities</option>
+        <option value="Low">Low Priority</option>
+        <option value="Medium">Medium Priority</option>
+        <option value="High">High Priority</option>
+      </select>
+
+      <!-- Assignee Filter -->
+      <select id="filter-assignee" class="filter-select">
+        <option value="">All Assignees</option>
+        <option value="unassigned">Unassigned Tasks</option>
+        <!-- Member options populated dynamically -->
+      </select>
+
+      <button id="btn-clear-filters" class="btn btn-ghost btn-sm" style="display: none;" title="Reset filters">
+        Clear Filters ✕
+      </button>
+    </div>
+  </div>
+
+  <!-- Horizontal Kanban Canvas -->
+  <main class="kanban-canvas" id="kanban-canvas">
+    <!-- Columns and Tasks rendered dynamically by board.js -->
+    <div style="padding: 40px; color: var(--text-muted);">
+      Loading Kanban workflow...
+    </div>
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Task Detail Modal -->
+  <div id="task-detail-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 650px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span id="modal-task-column-badge" class="stat-pill">Column</span>
+          <span id="modal-task-priority-pill" class="priority-pill priority-Medium">Medium</span>
+        </div>
+        <button class="modal-close" id="btn-close-task-modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Task Title (Editable) -->
+        <div class="form-group">
+          <label for="task-title-input">Task Title *</label>
+          <input type="text" id="task-title-input" class="form-control" style="font-size: 1.05rem; font-weight: 600;" required>
+        </div>
+
+        <!-- Task Metadata Grid: Column, Priority, Due Date, Assignee -->
+        <div class="task-detail-grid">
+          <!-- Fallback Accessibility "Move to Column" Dropdown for mobile/keyboard users -->
+          <div class="form-group">
+            <label for="task-column-select">📍 Move to Column (Accessibility &amp; Mobile)</label>
+            <select id="task-column-select" class="form-control">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <!-- Priority Selector -->
+          <div class="form-group">
+            <label for="task-priority-select">Priority</label>
+            <select id="task-priority-select" class="form-control">
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+
+          <!-- Due Date Picker -->
+          <div class="form-group">
+            <label for="task-due-date-input">Due Date</label>
+            <input type="date" id="task-due-date-input" class="form-control">
+          </div>
+
+          <!-- Assignee Selector -->
+          <div class="form-group">
+            <label for="task-assignee-select">Assignee</label>
+            <select id="task-assignee-select" class="form-control">
+              <option value="">Unassigned</option>
+              <!-- Board members populated dynamically -->
+            </select>
+          </div>
+
+          <!-- Description Textarea -->
+          <div class="form-group task-detail-full">
+            <label for="task-desc-input">Description</label>
+            <textarea id="task-desc-input" class="form-control" rows="3" placeholder="Add detailed notes, acceptance criteria, or links..."></textarea>
+          </div>
+        </div>
+
+        <!-- Save Button for Task Details -->
+        <div style="display: flex; justify-content: flex-end;">
+          <button id="btn-save-task-details" class="btn btn-primary btn-sm">
+            Save Task Changes
+          </button>
+        </div>
+
+        <!-- Comment Section -->
+        <div class="comments-section">
+          <h3 style="font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+            💬 Discussion &amp; Comments
+            <span id="modal-comments-count" style="font-size: 0.8rem; color: var(--text-muted);">(0)</span>
+          </h3>
+
+          <div class="comment-box">
+            <textarea id="new-comment-input" class="form-control" rows="2" placeholder="Write a comment or status update..."></textarea>
+            <div style="display: flex; justify-content: flex-end;">
+              <button id="btn-add-comment" class="btn btn-secondary btn-sm">
+                Post Comment
+              </button>
+            </div>
+          </div>
+
+          <!-- Comments Feed -->
+          <div id="modal-comments-list" class="comments-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Activity Log Section -->
+        <div style="border-top: 1px solid var(--border-color); padding-top: 16px;">
+          <h4 style="font-size: 0.85rem; color: var(--text-faint); margin-bottom: 8px; text-transform: uppercase;">
+            📜 Recent Activity
+          </h4>
+          <div id="modal-activity-list" class="activity-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button id="btn-delete-task" class="btn btn-danger btn-sm" title="Delete this task">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          Delete Task
+        </button>
+        <button id="btn-close-task-footer" class="btn btn-secondary btn-sm">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Add Task Modal -->
+  <div id="quick-add-task-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="quick-add-column-title">Add New Task</h2>
+        <button class="modal-close" id="btn-close-quick-add">&times;</button>
+      </div>
+      <form id="quick-add-task-form">
+        <input type="hidden" id="quick-add-column-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="quick-task-title">Task Title *</label>
+            <input type="text" id="quick-task-title" class="form-control" placeholder="What needs to be done?" required>
+          </div>
+          <div class="form-group">
+            <label for="quick-task-priority">Priority</label>
+            <select id="quick-task-priority" class="form-control">
+              <option value="Medium" selected>Medium</option>
+              <option value="Low">Low</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="quick-task-due">Due Date</label>
+            <input type="date" id="quick-task-due" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="quick-task-assignee">Assignee</label>
+            <select id="quick-task-assignee" class="form-control">
+              <option value="">Unassigned</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="quick-task-desc">Description (optional)</label>
+            <textarea id="quick-task-desc" class="form-control" placeholder="Additional details..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-quick-add">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-quick-add">Add Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Members Management Modal -->
+  <div id="members-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Board Members</h2>
+        <button class="modal-close" id="btn-close-members-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Add Member Form (Visible to Owner) -->
+        <div id="add-member-container" style="display: none; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+          <h4 style="font-size: 0.9rem; margin-bottom: 10px;">Invite User to Board</h4>
+          <form id="add-member-form" style="display: flex; gap: 8px;">
+            <input 
+              type="email" 
+              id="new-member-email" 
+              class="form-control" 
+              placeholder="user@example.com" 
+              required
+            >
+            <button type="submit" class="btn btn-primary btn-sm" style="white-space: nowrap;">
+              Add Member
+            </button>
+          </form>
+        </div>
+
+        <h4 style="font-size: 0.85rem; color: var(--text-faint); text-transform: uppercase;">Current Members</h4>
+        <div id="modal-members-list" class="members-modal-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-close-members-footer">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/board.js"></script>
+</body>
+</html>
